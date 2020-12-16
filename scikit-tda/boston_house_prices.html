@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="KeplerMapper">
+  <title>Boston house prices | KeplerMapper</title>
+
+  <link rel="icon" type="image/png" href="http://i.imgur.com/axOG6GJ.jpg" />
+
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Mono:700,300' rel='stylesheet' type='text/css'>
+  <style>* {
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: "Roboto Mono", "Helvetica", sans-serif;
+  font-size: 14px;
+}
+
+#logo {
+  position: absolute;
+  right: 00px;
+  top: 0px;
+  width: 90px;
+  height: 90px;
+  z-index: 999999;
+}
+
+#display {
+  color: #95A5A6;
+  background: #212121;
+}
+
+#print {
+  color: #000;
+  background: #FFF;
+}
+
+h1 {
+  font-size: 21px;
+  font-weight: 300;
+  font-weight: 300;
+}
+
+h2 {
+  font-size: 18px;
+  padding-bottom: 20px;
+  font-weight: 300;
+}
+
+h3 {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h4 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-bottom:0px;
+}
+
+
+#meta_content h3 {
+  float: left;
+  padding-right: 8px;
+}
+
+p, #tooltip_content h3, ol, ul, table {
+  padding-bottom: 10px;
+}
+
+ol, ul {
+  padding-left: 20px;
+}
+
+ol b {
+  display: block;
+}
+
+a {
+  color: #16a085;
+  text-decoration: none;
+}
+
+#panes {
+    /* background: #e24d4d; */
+  /* position: absolute; */
+  /* height: 100%; */
+  /* width: 100%; */
+  /* display: block; */
+  /* z-index: 9999; */
+}
+
+a:hover {
+  color: #2ecc71;
+}
+
+#header {
+  height: 35px;
+  /* padding-top: 20px; */
+  padding:10px;
+  padding-left:20px;
+  position: relative;
+}
+
+#display #header, #display #toolbar {
+  background: #111111;
+  box-shadow: 0px 0px 4px #000;
+}
+
+#print #header, #print #toolbar {
+  background: #FFF;
+}
+
+
+#canvas {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: block;
+}
+
+
+#toolbar {
+  position: relative;
+  padding-top: 10px;
+  padding-bottom: 10px;
+
+  width: 100%;
+  overflow: auto;
+}
+
+/* #display #toolbar {
+  background: #111111;
+}
+
+#print #toolbar {
+  background: #FFF;
+} */
+
+.tool_item {
+  padding-left: 20px;
+  position: relative;
+  float: left;
+}
+
+.pane_content {
+  position: relative;
+  float: left;
+  width: 300px;
+  height:100%;
+  padding: 20px;
+  overflow: auto;
+  display: none;
+}
+
+/* Chrome only: */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+  .pane_content {
+    width: 314px;
+    padding-right: 10px;
+  }
+}
+
+
+#helptip_content {
+  float:right;
+}
+
+#display .pane_content {
+  background: #191919;
+}
+
+#print .pane_content{
+  background: #FFF;
+}
+
+#meta_content {
+  float:right;
+}
+
+#meta_content::-webkit-scrollbar, #tooltip_content::-webkit-scrollbar {
+  width: 1em;
+}
+
+#meta_content::-webkit-scrollbar-track, #tooltip_content::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+#meta_content::-webkit-scrollbar-thumb, #tooltip_content::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+#histogram {
+  display: block;
+  height: 100px;
+  padding-top: 50px;
+  clear: both;
+}
+
+#display #histogram {
+  opacity: 0.68;
+}
+
+.bin {
+  width: 10%;
+  float: left;
+}
+
+.bin div {
+  font-size: 10px;
+  display: block;
+  width: 35px;
+  margin-top: -30px;
+  text-align: right;
+  margin-left: -3px;
+  -webkit-transform: rotate(-90deg);
+  -moz-transform: rotate(-90deg);
+  -ms-transform: rotate(-90deg);
+  -o-transform: rotate(-90deg);
+}
+
+#histogram:hover {
+  opacity: 1.;
+}
+
+#display .circle {
+  stroke-opacity: 0.18;
+  stroke-width: 7px;
+  stroke: #000;
+}
+
+#print .circle {
+  stroke-opacity: 1;
+  stroke-width: 2px;
+  stroke: #000;
+  stroke-linecap: round;
+}
+
+#print .link {
+  stroke: #000;
+}
+
+#display .link {
+  stroke: rgba(160, 160, 160, 0.5);
+}
+
+table {
+  border-collapse: collapse;
+  display: table;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+td, th {
+  padding: 5px;
+  text-align: left;
+}
+
+#display th {
+  background: #212121
+}
+
+td {
+  border-bottom: 1px solid #111;
+}
+</style>
+
+</head>
+
+<body id="display">
+
+  <!-- Storage of data so D3 can access it later. This is in <body> so Chrome doesn't wholesale move all head content to body. -->
+  <div id="json_graph" data-graph='{"links": [{"source": 0, "target": 4, "width": 1}, {"source": 1, "target": 5, "width": 1}, {"source": 2, "target": 3, "width": 1}, {"source": 3, "target": 6, "width": 1}, {"source": 4, "target": 7, "width": 1}, {"source": 5, "target": 6, "width": 1}, {"source": 6, "target": 9, "width": 1}, {"source": 7, "target": 11, "width": 1}, {"source": 8, "target": 10, "width": 1}, {"source": 9, "target": 13, "width": 1}, {"source": 10, "target": 12, "width": 1}, {"source": 10, "target": 14, "width": 1}, {"source": 11, "target": 13, "width": 1}, {"source": 12, "target": 15, "width": 1}, {"source": 13, "target": 16, "width": 1}, {"source": 14, "target": 17, "width": 1}, {"source": 15, "target": 18, "width": 1}, {"source": 16, "target": 19, "width": 1}, {"source": 17, "target": 18, "width": 1}, {"source": 17, "target": 20, "width": 1}, {"source": 18, "target": 23, "width": 1}, {"source": 21, "target": 24, "width": 1}, {"source": 23, "target": 24, "width": 1}, {"source": 23, "target": 25, "width": 1}, {"source": 24, "target": 27, "width": 1}, {"source": 24, "target": 29, "width": 1}, {"source": 25, "target": 28, "width": 1}, {"source": 27, "target": 31, "width": 1}, {"source": 28, "target": 32, "width": 1}, {"source": 29, "target": 30, "width": 1}, {"source": 31, "target": 33, "width": 1}, {"source": 34, "target": 37, "width": 1}, {"source": 36, "target": 39, "width": 1}, {"source": 36, "target": 40, "width": 1}, {"source": 40, "target": 43, "width": 1}], "nodes": [{"color": 0.055555555555555566, "id": "", "name": "cube0_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube0_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 45.7461, TAX: 666.0, PRICE: 7000.0$)\n\n(CRIM: 18.0846, TAX: 666.0, PRICE: 7200.0$)\n\n(CRIM: 10.8342, TAX: 666.0, PRICE: 7500.0$)\n\n(CRIM: 15.8603, TAX: 666.0, PRICE: 8300.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.03396825396825397, "id": "", "name": "cube0_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube0_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e7\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 16.8118, TAX: 666.0, PRICE: 7200.0$)\n\n(CRIM: 22.5971, TAX: 666.0, PRICE: 7400.0$)\n\n(CRIM: 38.3518, TAX: 666.0, PRICE: 5000.0$)\n\n(CRIM: 25.0461, TAX: 666.0, PRICE: 5600.0$)\n\n(CRIM: 14.2362, TAX: 666.0, PRICE: 7200.0$)\n\n(CRIM: 24.8017, TAX: 666.0, PRICE: 8300.0$)\n\n(CRIM: 67.9208, TAX: 666.0, PRICE: 5000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.0474074074074074, "id": "", "name": "cube0_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube0_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e3\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 9.91655, TAX: 666.0, PRICE: 6300.0$)\n\n(CRIM: 0.18337, TAX: 711.0, PRICE: 7000.0$)\n\n(CRIM: 0.20746, TAX: 711.0, PRICE: 8100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.09, "id": "", "name": "cube1_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e75.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:33.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 20.0849, TAX: 666.0, PRICE: 8800.0$)\n\n(CRIM: 41.5292, TAX: 666.0, PRICE: 8500.0$)\n\n(CRIM: 12.8023, TAX: 666.0, PRICE: 10800.0$)\n\n(CRIM: 0.20746, TAX: 711.0, PRICE: 8100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.09939393939393941, "id": "", "name": "cube1_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e54.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:83.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e45.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 25.9406, TAX: 666.0, PRICE: 10400.0$)\n\n(CRIM: 73.5341, TAX: 666.0, PRICE: 8800.0$)\n\n(CRIM: 11.8123, TAX: 666.0, PRICE: 8400.0$)\n\n(CRIM: 15.8603, TAX: 666.0, PRICE: 8300.0$)\n\n(CRIM: 12.2472, TAX: 666.0, PRICE: 10200.0$)\n\n(CRIM: 37.6619, TAX: 666.0, PRICE: 10900.0$)\n\n(CRIM: 7.36711, TAX: 666.0, PRICE: 11000.0$)\n\n(CRIM: 9.33889, TAX: 666.0, PRICE: 9500.0$)\n\n(CRIM: 14.4208, TAX: 666.0, PRICE: 9600.0$)\n\n(CRIM: 15.1772, TAX: 666.0, PRICE: 8700.0$)\n\n(CRIM: 13.6781, TAX: 666.0, PRICE: 8400.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.11222222222222222, "id": "", "name": "cube1_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube1_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:25.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e20.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e80.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e10\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 17.8667, TAX: 666.0, PRICE: 10200.0$)\n\n(CRIM: 88.9762, TAX: 666.0, PRICE: 10400.0$)\n\n(CRIM: 15.8744, TAX: 666.0, PRICE: 10900.0$)\n\n(CRIM: 9.18702, TAX: 666.0, PRICE: 11300.0$)\n\n(CRIM: 24.3938, TAX: 666.0, PRICE: 10500.0$)\n\n(CRIM: 14.3337, TAX: 666.0, PRICE: 10200.0$)\n\n(CRIM: 11.5779, TAX: 666.0, PRICE: 9700.0$)\n\n(CRIM: 7.67202, TAX: 666.0, PRICE: 8500.0$)\n\n(CRIM: 24.8017, TAX: 666.0, PRICE: 8300.0$)\n\n(CRIM: 22.0511, TAX: 666.0, PRICE: 10500.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.1735111111111111, "id": "", "name": "cube2_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube2_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e92.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:9.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e8.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e25\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 11.1081, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 18.4982, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 15.288, TAX: 666.0, PRICE: 13900.0$)\n\n(CRIM: 9.82349, TAX: 666.0, PRICE: 13300.0$)\n\n(CRIM: 23.6482, TAX: 666.0, PRICE: 13100.0$)\n\n(CRIM: 15.8744, TAX: 666.0, PRICE: 10900.0$)\n\n(CRIM: 9.18702, TAX: 666.0, PRICE: 11300.0$)\n\n(CRIM: 7.99248, TAX: 666.0, PRICE: 12300.0$)\n\n(CRIM: 8.15174, TAX: 666.0, PRICE: 11500.0$)\n\n(CRIM: 8.64476, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 13.3598, TAX: 666.0, PRICE: 12700.0$)\n\n(CRIM: 8.71675, TAX: 666.0, PRICE: 13100.0$)\n\n(CRIM: 5.87205, TAX: 666.0, PRICE: 12500.0$)\n\n(CRIM: 9.59571, TAX: 666.0, PRICE: 12100.0$)\n\n(CRIM: 20.7162, TAX: 666.0, PRICE: 11900.0$)\n\n(CRIM: 7.02259, TAX: 666.0, PRICE: 14200.0$)\n\n(CRIM: 9.39063, TAX: 666.0, PRICE: 12800.0$)\n\n(CRIM: 12.8023, TAX: 666.0, PRICE: 10800.0$)\n\n(CRIM: 9.92485, TAX: 666.0, PRICE: 12600.0$)\n\n(CRIM: 9.32909, TAX: 666.0, PRICE: 14100.0$)\n\n(CRIM: 7.52601, TAX: 666.0, PRICE: 13000.0$)\n\n(CRIM: 8.05579, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 6.39312, TAX: 666.0, PRICE: 13300.0$)\n\n(CRIM: 15.0234, TAX: 666.0, PRICE: 12000.0$)\n\n(CRIM: 0.10574, TAX: 711.0, PRICE: 13600.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.17264957264957265, "id": "", "name": "cube2_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube2_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e76.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:30.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e23.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e13\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 7.05042, TAX: 666.0, PRICE: 13400.0$)\n\n(CRIM: 8.79212, TAX: 666.0, PRICE: 11700.0$)\n\n(CRIM: 37.6619, TAX: 666.0, PRICE: 10900.0$)\n\n(CRIM: 7.36711, TAX: 666.0, PRICE: 11000.0$)\n\n(CRIM: 10.0623, TAX: 666.0, PRICE: 14100.0$)\n\n(CRIM: 5.58107, TAX: 666.0, PRICE: 14300.0$)\n\n(CRIM: 13.9134, TAX: 666.0, PRICE: 11700.0$)\n\n(CRIM: 11.1604, TAX: 666.0, PRICE: 13400.0$)\n\n(CRIM: 10.6718, TAX: 666.0, PRICE: 11800.0$)\n\n(CRIM: 6.71772, TAX: 666.0, PRICE: 13400.0$)\n\n(CRIM: 4.75237, TAX: 666.0, PRICE: 14100.0$)\n\n(CRIM: 4.66883, TAX: 666.0, PRICE: 12700.0$)\n\n(CRIM: 8.20058, TAX: 666.0, PRICE: 13500.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.1834920634920635, "id": "", "name": "cube2_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube2_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e85.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:17.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e14.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e14\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 1.25179, TAX: 307.0, PRICE: 13600.0$)\n\n(CRIM: 0.84054, TAX: 307.0, PRICE: 13900.0$)\n\n(CRIM: 1.13081, TAX: 307.0, PRICE: 12700.0$)\n\n(CRIM: 1.38799, TAX: 307.0, PRICE: 13200.0$)\n\n(CRIM: 1.15172, TAX: 307.0, PRICE: 13100.0$)\n\n(CRIM: 1.61282, TAX: 307.0, PRICE: 13500.0$)\n\n(CRIM: 0.88125, TAX: 437.0, PRICE: 14300.0$)\n\n(CRIM: 0.2498, TAX: 437.0, PRICE: 13300.0$)\n\n(CRIM: 0.2909, TAX: 437.0, PRICE: 14000.0$)\n\n(CRIM: 3.32105, TAX: 403.0, PRICE: 13400.0$)\n\n(CRIM: 2.77974, TAX: 403.0, PRICE: 11800.0$)\n\n(CRIM: 2.37934, TAX: 403.0, PRICE: 13800.0$)\n\n(CRIM: 2.44668, TAX: 403.0, PRICE: 13100.0$)\n\n(CRIM: 0.04741, TAX: 273.0, PRICE: 11900.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.22696969696969702, "id": "", "name": "cube3_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube3_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:29.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e22.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e77.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e22\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 4.22239, TAX: 666.0, PRICE: 16800.0$)\n\n(CRIM: 11.1081, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 18.4982, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 19.6091, TAX: 666.0, PRICE: 15000.0$)\n\n(CRIM: 15.288, TAX: 666.0, PRICE: 13900.0$)\n\n(CRIM: 6.96215, TAX: 666.0, PRICE: 15100.0$)\n\n(CRIM: 8.64476, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 7.40389, TAX: 666.0, PRICE: 17200.0$)\n\n(CRIM: 11.0874, TAX: 666.0, PRICE: 16700.0$)\n\n(CRIM: 7.02259, TAX: 666.0, PRICE: 14200.0$)\n\n(CRIM: 9.72418, TAX: 666.0, PRICE: 17100.0$)\n\n(CRIM: 9.96654, TAX: 666.0, PRICE: 15400.0$)\n\n(CRIM: 6.28807, TAX: 666.0, PRICE: 14900.0$)\n\n(CRIM: 9.32909, TAX: 666.0, PRICE: 14100.0$)\n\n(CRIM: 5.44114, TAX: 666.0, PRICE: 15200.0$)\n\n(CRIM: 5.09017, TAX: 666.0, PRICE: 16100.000000000002$)\n\n(CRIM: 7.75223, TAX: 666.0, PRICE: 14900.0$)\n\n(CRIM: 4.81213, TAX: 666.0, PRICE: 16400.0$)\n\n(CRIM: 8.05579, TAX: 666.0, PRICE: 13800.0$)\n\n(CRIM: 4.87141, TAX: 666.0, PRICE: 16700.0$)\n\n(CRIM: 10.233, TAX: 666.0, PRICE: 14600.0$)\n\n(CRIM: 0.15086, TAX: 711.0, PRICE: 15200.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.23595959595959598, "id": "", "name": "cube3_cluster1", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube3_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:6.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e6.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e93.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e33\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.21124, TAX: 311.0, PRICE: 16500.0$)\n\n(CRIM: 0.22489, TAX: 311.0, PRICE: 15000.0$)\n\n(CRIM: 1.23247, TAX: 307.0, PRICE: 15200.0$)\n\n(CRIM: 0.98843, TAX: 307.0, PRICE: 14500.0$)\n\n(CRIM: 0.75026, TAX: 307.0, PRICE: 15600.0$)\n\n(CRIM: 0.84054, TAX: 307.0, PRICE: 13900.0$)\n\n(CRIM: 0.67191, TAX: 307.0, PRICE: 16600.0$)\n\n(CRIM: 0.95577, TAX: 307.0, PRICE: 14800.0$)\n\n(CRIM: 1.35472, TAX: 307.0, PRICE: 14500.0$)\n\n(CRIM: 0.22927, TAX: 233.0, PRICE: 16600.0$)\n\n(CRIM: 0.25387, TAX: 233.0, PRICE: 14400.0$)\n\n(CRIM: 0.17171, TAX: 284.0, PRICE: 16000.0$)\n\n(CRIM: 0.15038, TAX: 188.0, PRICE: 17300.0$)\n\n(CRIM: 0.38735, TAX: 188.0, PRICE: 15700.0$)\n\n(CRIM: 0.25915, TAX: 437.0, PRICE: 16200.0$)\n\n(CRIM: 0.88125, TAX: 437.0, PRICE: 14300.0$)\n\n(CRIM: 0.97617, TAX: 437.0, PRICE: 15600.0$)\n\n(CRIM: 0.35233, TAX: 437.0, PRICE: 17100.0$)\n\n(CRIM: 0.2909, TAX: 437.0, PRICE: 14000.0$)\n\n(CRIM: 1.62864, TAX: 437.0, PRICE: 14400.0$)\n\n(CRIM: 4.0974, TAX: 403.0, PRICE: 15600.0$)\n\n(CRIM: 2.37934, TAX: 403.0, PRICE: 13800.0$)\n\n(CRIM: 2.15505, TAX: 403.0, PRICE: 15600.0$)\n\n(CRIM: 2.36862, TAX: 403.0, PRICE: 14600.0$)\n\n(CRIM: 2.73397, TAX: 403.0, PRICE: 15400.0$)\n\n(CRIM: 1.12658, TAX: 403.0, PRICE: 15300.0$)\n\n(CRIM: 1.41385, TAX: 403.0, PRICE: 17000.0$)\n\n(CRIM: 2.63548, TAX: 304.0, PRICE: 16100.000000000002$)\n\n(CRIM: 0.25356, TAX: 304.0, PRICE: 16200.0$)\n\n(CRIM: 0.05023, TAX: 304.0, PRICE: 17100.0$)\n\n(CRIM: 0.02498, TAX: 422.0, PRICE: 16500.0$)\n\n(CRIM: 0.06162, TAX: 352.0, PRICE: 17200.0$)\n\n(CRIM: 0.22438, TAX: 391.0, PRICE: 16800.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.22688888888888897, "id": "", "name": "cube3_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube3_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e10\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 3.53501, TAX: 403.0, PRICE: 15600.0$)\n\n(CRIM: 51.1358, TAX: 666.0, PRICE: 15000.0$)\n\n(CRIM: 14.0507, TAX: 666.0, PRICE: 17200.0$)\n\n(CRIM: 28.6558, TAX: 666.0, PRICE: 16300.0$)\n\n(CRIM: 8.49213, TAX: 666.0, PRICE: 14500.0$)\n\n(CRIM: 10.0623, TAX: 666.0, PRICE: 14100.0$)\n\n(CRIM: 6.44405, TAX: 666.0, PRICE: 16100.000000000002$)\n\n(CRIM: 5.58107, TAX: 666.0, PRICE: 14300.0$)\n\n(CRIM: 9.51363, TAX: 666.0, PRICE: 14900.0$)\n\n(CRIM: 4.75237, TAX: 666.0, PRICE: 14100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.3120325203252033, "id": "", "name": "cube4_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:32.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e24.4%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e75.6%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e41\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.17004, TAX: 311.0, PRICE: 18900.0$)\n\n(CRIM: 0.11747, TAX: 311.0, PRICE: 18900.0$)\n\n(CRIM: 0.63796, TAX: 307.0, PRICE: 18200.0$)\n\n(CRIM: 0.62739, TAX: 307.0, PRICE: 19900.0$)\n\n(CRIM: 0.7842, TAX: 307.0, PRICE: 17500.0$)\n\n(CRIM: 0.80271, TAX: 307.0, PRICE: 20200.0$)\n\n(CRIM: 0.7258, TAX: 307.0, PRICE: 18200.0$)\n\n(CRIM: 0.85204, TAX: 307.0, PRICE: 19600.0$)\n\n(CRIM: 0.77299, TAX: 307.0, PRICE: 18400.0$)\n\n(CRIM: 0.06417, TAX: 279.0, PRICE: 18900.0$)\n\n(CRIM: 0.09744, TAX: 279.0, PRICE: 20000.0$)\n\n(CRIM: 0.17142, TAX: 233.0, PRICE: 19300.0$)\n\n(CRIM: 0.18836, TAX: 233.0, PRICE: 20000.0$)\n\n(CRIM: 0.21977, TAX: 233.0, PRICE: 19400.0$)\n\n(CRIM: 0.08873, TAX: 243.0, PRICE: 19700.0$)\n\n(CRIM: 0.10328, TAX: 284.0, PRICE: 19600.0$)\n\n(CRIM: 0.14932, TAX: 284.0, PRICE: 18700.0$)\n\n(CRIM: 0.04379, TAX: 337.0, PRICE: 19400.0$)\n\n(CRIM: 0.13554, TAX: 345.0, PRICE: 17400.0$)\n\n(CRIM: 0.07165, TAX: 188.0, PRICE: 20300.0$)\n\n(CRIM: 0.15038, TAX: 188.0, PRICE: 17300.0$)\n\n(CRIM: 0.09849, TAX: 188.0, PRICE: 18800.0$)\n\n(CRIM: 0.43571, TAX: 277.0, PRICE: 20000.0$)\n\n(CRIM: 0.37578, TAX: 277.0, PRICE: 19300.0$)\n\n(CRIM: 0.10612, TAX: 300.0, PRICE: 20100.0$)\n\n(CRIM: 0.20608, TAX: 330.0, PRICE: 17600.0$)\n\n(CRIM: 0.19133, TAX: 330.0, PRICE: 18500.0$)\n\n(CRIM: 0.01965, TAX: 241.0, PRICE: 20100.0$)\n\n(CRIM: 0.14103, TAX: 289.0, PRICE: 20300.0$)\n\n(CRIM: 0.3494, TAX: 304.0, PRICE: 20300.0$)\n\n(CRIM: 0.26169, TAX: 304.0, PRICE: 19400.0$)\n\n(CRIM: 0.31827, TAX: 304.0, PRICE: 17800.0$)\n\n(CRIM: 0.24522, TAX: 304.0, PRICE: 19800.0$)\n\n(CRIM: 0.28392, TAX: 287.0, PRICE: 18500.0$)\n\n(CRIM: 0.05023, TAX: 304.0, PRICE: 17100.0$)\n\n(CRIM: 0.03466, TAX: 304.0, PRICE: 19400.0$)\n\n(CRIM: 0.03427, TAX: 224.0, PRICE: 19500.0$)\n\n(CRIM: 0.03041, TAX: 224.0, PRICE: 18500.0$)\n\n(CRIM: 0.05497, TAX: 224.0, PRICE: 19000.0$)\n\n(CRIM: 0.06151, TAX: 224.0, PRICE: 18700.0$)\n\n(CRIM: 0.04301, TAX: 334.0, PRICE: 18200.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.30259259259259264, "id": "", "name": "cube4_cluster1", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:85.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e45.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e54.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e24\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 8.98296, TAX: 666.0, PRICE: 17800.0$)\n\n(CRIM: 3.83684, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 4.22239, TAX: 666.0, PRICE: 16800.0$)\n\n(CRIM: 7.40389, TAX: 666.0, PRICE: 17200.0$)\n\n(CRIM: 14.0507, TAX: 666.0, PRICE: 17200.0$)\n\n(CRIM: 18.811, TAX: 666.0, PRICE: 17900.0$)\n\n(CRIM: 11.0874, TAX: 666.0, PRICE: 16700.0$)\n\n(CRIM: 9.72418, TAX: 666.0, PRICE: 17100.0$)\n\n(CRIM: 5.66637, TAX: 666.0, PRICE: 18400.0$)\n\n(CRIM: 8.24809, TAX: 666.0, PRICE: 17800.0$)\n\n(CRIM: 6.80117, TAX: 666.0, PRICE: 20000.0$)\n\n(CRIM: 3.69311, TAX: 666.0, PRICE: 17700.0$)\n\n(CRIM: 6.65492, TAX: 666.0, PRICE: 19500.0$)\n\n(CRIM: 5.82115, TAX: 666.0, PRICE: 20200.0$)\n\n(CRIM: 3.1636, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 3.77498, TAX: 666.0, PRICE: 19000.0$)\n\n(CRIM: 4.42228, TAX: 666.0, PRICE: 19100.0$)\n\n(CRIM: 15.5757, TAX: 666.0, PRICE: 19100.0$)\n\n(CRIM: 13.0751, TAX: 666.0, PRICE: 20100.0$)\n\n(CRIM: 4.34879, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 4.03841, TAX: 666.0, PRICE: 19600.0$)\n\n(CRIM: 4.87141, TAX: 666.0, PRICE: 16700.0$)\n\n(CRIM: 5.69175, TAX: 666.0, PRICE: 19100.0$)\n\n(CRIM: 0.11132, TAX: 711.0, PRICE: 20100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.3041595441595442, "id": "", "name": "cube4_cluster2", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube4_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:63.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e38.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e61.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e39\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.0136, TAX: 469.0, PRICE: 18900.0$)\n\n(CRIM: 0.10153, TAX: 398.0, PRICE: 20000.0$)\n\n(CRIM: 0.08387, TAX: 398.0, PRICE: 20300.0$)\n\n(CRIM: 0.22876, TAX: 384.0, PRICE: 18600.0$)\n\n(CRIM: 0.21161, TAX: 384.0, PRICE: 19300.0$)\n\n(CRIM: 0.1396, TAX: 384.0, PRICE: 20100.0$)\n\n(CRIM: 0.13262, TAX: 384.0, PRICE: 19500.0$)\n\n(CRIM: 0.1712, TAX: 384.0, PRICE: 19500.0$)\n\n(CRIM: 0.12802, TAX: 384.0, PRICE: 19800.0$)\n\n(CRIM: 0.26363, TAX: 384.0, PRICE: 19400.0$)\n\n(CRIM: 0.12329, TAX: 432.0, PRICE: 18800.0$)\n\n(CRIM: 0.22212, TAX: 432.0, PRICE: 18700.0$)\n\n(CRIM: 0.14231, TAX: 432.0, PRICE: 18500.0$)\n\n(CRIM: 0.17134, TAX: 432.0, PRICE: 18300.0$)\n\n(CRIM: 0.15098, TAX: 432.0, PRICE: 19200.0$)\n\n(CRIM: 0.14476, TAX: 432.0, PRICE: 19300.0$)\n\n(CRIM: 0.32543, TAX: 437.0, PRICE: 18000.0$)\n\n(CRIM: 0.34006, TAX: 437.0, PRICE: 19200.0$)\n\n(CRIM: 1.19294, TAX: 437.0, PRICE: 19600.0$)\n\n(CRIM: 0.32982, TAX: 437.0, PRICE: 18400.0$)\n\n(CRIM: 0.55778, TAX: 437.0, PRICE: 18100.0$)\n\n(CRIM: 0.32264, TAX: 437.0, PRICE: 17400.0$)\n\n(CRIM: 0.35233, TAX: 437.0, PRICE: 17100.0$)\n\n(CRIM: 0.54452, TAX: 437.0, PRICE: 17800.0$)\n\n(CRIM: 2.33099, TAX: 403.0, PRICE: 17800.0$)\n\n(CRIM: 1.49632, TAX: 403.0, PRICE: 19600.0$)\n\n(CRIM: 2.14918, TAX: 403.0, PRICE: 19400.0$)\n\n(CRIM: 1.41385, TAX: 403.0, PRICE: 17000.0$)\n\n(CRIM: 1.20742, TAX: 403.0, PRICE: 17400.0$)\n\n(CRIM: 2.3139, TAX: 403.0, PRICE: 19100.0$)\n\n(CRIM: 0.06617, TAX: 430.0, PRICE: 19300.0$)\n\n(CRIM: 0.04544, TAX: 430.0, PRICE: 19800.0$)\n\n(CRIM: 0.03113, TAX: 352.0, PRICE: 17500.0$)\n\n(CRIM: 0.06162, TAX: 352.0, PRICE: 17200.0$)\n\n(CRIM: 0.07244, TAX: 411.0, PRICE: 18600.0$)\n\n(CRIM: 0.2896, TAX: 391.0, PRICE: 19700.0$)\n\n(CRIM: 0.26838, TAX: 391.0, PRICE: 18300.0$)\n\n(CRIM: 0.17783, TAX: 391.0, PRICE: 17500.0$)\n\n(CRIM: 0.22438, TAX: 391.0, PRICE: 16800.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.370379746835443, "id": "", "name": "cube5_cluster0", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e86.1%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:16.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e13.9%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e79\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02731, TAX: 242.0, PRICE: 21600.0$)\n\n(CRIM: 0.08829, TAX: 311.0, PRICE: 22900.0$)\n\n(CRIM: 0.09378, TAX: 311.0, PRICE: 21700.0$)\n\n(CRIM: 0.62976, TAX: 307.0, PRICE: 20400.0$)\n\n(CRIM: 0.62739, TAX: 307.0, PRICE: 19900.0$)\n\n(CRIM: 1.05393, TAX: 307.0, PRICE: 23100.0$)\n\n(CRIM: 0.80271, TAX: 307.0, PRICE: 20200.0$)\n\n(CRIM: 1.00245, TAX: 307.0, PRICE: 21000.0$)\n\n(CRIM: 0.09744, TAX: 279.0, PRICE: 20000.0$)\n\n(CRIM: 0.08014, TAX: 279.0, PRICE: 21000.0$)\n\n(CRIM: 0.12269, TAX: 233.0, PRICE: 21200.0$)\n\n(CRIM: 0.18836, TAX: 233.0, PRICE: 20000.0$)\n\n(CRIM: 0.08873, TAX: 243.0, PRICE: 19700.0$)\n\n(CRIM: 0.04337, TAX: 243.0, PRICE: 20500.0$)\n\n(CRIM: 0.15445, TAX: 284.0, PRICE: 23300.0$)\n\n(CRIM: 0.11027, TAX: 284.0, PRICE: 22200.0$)\n\n(CRIM: 0.15876, TAX: 305.0, PRICE: 21700.0$)\n\n(CRIM: 0.09164, TAX: 305.0, PRICE: 22800.0$)\n\n(CRIM: 0.03551, TAX: 281.0, PRICE: 22900.0$)\n\n(CRIM: 0.05188, TAX: 247.0, PRICE: 22500.0$)\n\n(CRIM: 0.07151, TAX: 247.0, PRICE: 22200.0$)\n\n(CRIM: 0.04684, TAX: 270.0, PRICE: 22600.0$)\n\n(CRIM: 0.03932, TAX: 270.0, PRICE: 22000.0$)\n\n(CRIM: 0.04203, TAX: 270.0, PRICE: 22900.0$)\n\n(CRIM: 0.04294, TAX: 270.0, PRICE: 20600.0$)\n\n(CRIM: 0.11504, TAX: 276.0, PRICE: 21400.0$)\n\n(CRIM: 0.06899, TAX: 188.0, PRICE: 22000.0$)\n\n(CRIM: 0.07165, TAX: 188.0, PRICE: 20300.0$)\n\n(CRIM: 0.09299, TAX: 188.0, PRICE: 20500.0$)\n\n(CRIM: 0.16902, TAX: 188.0, PRICE: 21400.0$)\n\n(CRIM: 0.13914, TAX: 296.0, PRICE: 23100.0$)\n\n(CRIM: 0.08447, TAX: 296.0, PRICE: 22600.0$)\n\n(CRIM: 0.07022, TAX: 296.0, PRICE: 23200.0$)\n\n(CRIM: 0.13642, TAX: 277.0, PRICE: 22600.0$)\n\n(CRIM: 0.25199, TAX: 277.0, PRICE: 22500.0$)\n\n(CRIM: 0.43571, TAX: 277.0, PRICE: 20000.0$)\n\n(CRIM: 0.17446, TAX: 277.0, PRICE: 21700.0$)\n\n(CRIM: 0.21719, TAX: 277.0, PRICE: 22400.0$)\n\n(CRIM: 0.0456, TAX: 276.0, PRICE: 23300.0$)\n\n(CRIM: 0.11069, TAX: 276.0, PRICE: 21500.0$)\n\n(CRIM: 0.11425, TAX: 276.0, PRICE: 23000.0$)\n\n(CRIM: 0.40771, TAX: 307.0, PRICE: 21700.0$)\n\n(CRIM: 0.09252, TAX: 300.0, PRICE: 23300.0$)\n\n(CRIM: 0.11329, TAX: 300.0, PRICE: 22000.0$)\n\n(CRIM: 0.10612, TAX: 300.0, PRICE: 20100.0$)\n\n(CRIM: 0.1029, TAX: 300.0, PRICE: 22200.0$)\n\n(CRIM: 0.19657, TAX: 330.0, PRICE: 20500.0$)\n\n(CRIM: 0.04819, TAX: 315.0, PRICE: 21900.0$)\n\n(CRIM: 0.03548, TAX: 315.0, PRICE: 20900.0$)\n\n(CRIM: 0.76162, TAX: 264.0, PRICE: 22800.0$)\n\n(CRIM: 0.09065, TAX: 223.0, PRICE: 20700.0$)\n\n(CRIM: 0.29916, TAX: 223.0, PRICE: 21100.0$)\n\n(CRIM: 0.01096, TAX: 300.0, PRICE: 22000.0$)\n\n(CRIM: 0.01965, TAX: 241.0, PRICE: 20100.0$)\n\n(CRIM: 0.03871, TAX: 293.0, PRICE: 23200.0$)\n\n(CRIM: 0.0459, TAX: 293.0, PRICE: 22300.0$)\n\n(CRIM: 0.08199, TAX: 289.0, PRICE: 21700.0$)\n\n(CRIM: 0.14103, TAX: 289.0, PRICE: 20300.0$)\n\n(CRIM: 0.03537, TAX: 329.0, PRICE: 22000.0$)\n\n(CRIM: 0.49298, TAX: 304.0, PRICE: 22800.0$)\n\n(CRIM: 0.3494, TAX: 304.0, PRICE: 20300.0$)\n\n(CRIM: 0.79041, TAX: 304.0, PRICE: 22100.0$)\n\n(CRIM: 0.26938, TAX: 304.0, PRICE: 21600.0$)\n\n(CRIM: 0.24522, TAX: 304.0, PRICE: 19800.0$)\n\n(CRIM: 0.40202, TAX: 304.0, PRICE: 23100.0$)\n\n(CRIM: 0.47547, TAX: 304.0, PRICE: 21000.0$)\n\n(CRIM: 0.18159, TAX: 287.0, PRICE: 23100.0$)\n\n(CRIM: 0.35114, TAX: 287.0, PRICE: 20400.0$)\n\n(CRIM: 0.30347, TAX: 287.0, PRICE: 23000.0$)\n\n(CRIM: 0.24103, TAX: 287.0, PRICE: 22200.0$)\n\n(CRIM: 0.05083, TAX: 224.0, PRICE: 22200.0$)\n\n(CRIM: 0.03738, TAX: 224.0, PRICE: 20700.0$)\n\n(CRIM: 0.03961, TAX: 224.0, PRICE: 21100.0$)\n\n(CRIM: 0.03306, TAX: 224.0, PRICE: 20600.0$)\n\n(CRIM: 0.06211, TAX: 335.0, PRICE: 22900.0$)\n\n(CRIM: 0.10659, TAX: 334.0, PRICE: 20600.0$)\n\n(CRIM: 0.06263, TAX: 273.0, PRICE: 22400.0$)\n\n(CRIM: 0.04527, TAX: 273.0, PRICE: 20600.0$)\n\n(CRIM: 0.10959, TAX: 273.0, PRICE: 22000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.362962962962963, "id": "", "name": "cube5_cluster1", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e83.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:20.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e16.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e24\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 3.8497, TAX: 666.0, PRICE: 21700.0$)\n\n(CRIM: 5.20177, TAX: 666.0, PRICE: 22700.0$)\n\n(CRIM: 4.26131, TAX: 666.0, PRICE: 22600.0$)\n\n(CRIM: 3.83684, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 3.67822, TAX: 666.0, PRICE: 20800.0$)\n\n(CRIM: 3.47428, TAX: 666.0, PRICE: 21900.0$)\n\n(CRIM: 3.69695, TAX: 666.0, PRICE: 21900.0$)\n\n(CRIM: 13.5222, TAX: 666.0, PRICE: 23100.0$)\n\n(CRIM: 5.29305, TAX: 666.0, PRICE: 23200.0$)\n\n(CRIM: 12.0482, TAX: 666.0, PRICE: 20800.0$)\n\n(CRIM: 6.80117, TAX: 666.0, PRICE: 20000.0$)\n\n(CRIM: 5.82115, TAX: 666.0, PRICE: 20200.0$)\n\n(CRIM: 7.83932, TAX: 666.0, PRICE: 21400.0$)\n\n(CRIM: 3.1636, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 13.0751, TAX: 666.0, PRICE: 20100.0$)\n\n(CRIM: 4.34879, TAX: 666.0, PRICE: 19900.0$)\n\n(CRIM: 3.56868, TAX: 666.0, PRICE: 23200.0$)\n\n(CRIM: 14.3337, TAX: 666.0, PRICE: 21400.0$)\n\n(CRIM: 5.82401, TAX: 666.0, PRICE: 23000.0$)\n\n(CRIM: 2.81838, TAX: 666.0, PRICE: 21800.0$)\n\n(CRIM: 2.37857, TAX: 666.0, PRICE: 20600.0$)\n\n(CRIM: 3.67367, TAX: 666.0, PRICE: 21200.0$)\n\n(CRIM: 4.83567, TAX: 666.0, PRICE: 20600.0$)\n\n(CRIM: 0.11132, TAX: 711.0, PRICE: 20100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.3659259259259259, "id": "", "name": "cube5_cluster2", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube5_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e85.2%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:17.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e14.8%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e27\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.05789, TAX: 345.0, PRICE: 22000.0$)\n\n(CRIM: 0.12816, TAX: 345.0, PRICE: 20900.0$)\n\n(CRIM: 0.09512, TAX: 398.0, PRICE: 21400.0$)\n\n(CRIM: 0.10153, TAX: 398.0, PRICE: 20000.0$)\n\n(CRIM: 0.08707, TAX: 398.0, PRICE: 20800.0$)\n\n(CRIM: 0.05646, TAX: 398.0, PRICE: 21200.0$)\n\n(CRIM: 0.08387, TAX: 398.0, PRICE: 20300.0$)\n\n(CRIM: 0.1396, TAX: 384.0, PRICE: 20100.0$)\n\n(CRIM: 0.13117, TAX: 384.0, PRICE: 20400.0$)\n\n(CRIM: 0.12802, TAX: 384.0, PRICE: 19800.0$)\n\n(CRIM: 0.10793, TAX: 384.0, PRICE: 21700.0$)\n\n(CRIM: 0.10084, TAX: 432.0, PRICE: 22800.0$)\n\n(CRIM: 0.13158, TAX: 432.0, PRICE: 21200.0$)\n\n(CRIM: 0.13058, TAX: 432.0, PRICE: 20400.0$)\n\n(CRIM: 0.59005, TAX: 437.0, PRICE: 23000.0$)\n\n(CRIM: 1.6566, TAX: 403.0, PRICE: 21500.0$)\n\n(CRIM: 1.42502, TAX: 403.0, PRICE: 23300.0$)\n\n(CRIM: 2.24236, TAX: 403.0, PRICE: 22700.0$)\n\n(CRIM: 2.44953, TAX: 403.0, PRICE: 22300.0$)\n\n(CRIM: 0.06466, TAX: 358.0, PRICE: 22500.0$)\n\n(CRIM: 0.06724, TAX: 430.0, PRICE: 22600.0$)\n\n(CRIM: 0.04544, TAX: 430.0, PRICE: 19800.0$)\n\n(CRIM: 0.0187, TAX: 351.0, PRICE: 23100.0$)\n\n(CRIM: 0.17331, TAX: 391.0, PRICE: 21800.0$)\n\n(CRIM: 0.17899, TAX: 391.0, PRICE: 23100.0$)\n\n(CRIM: 0.2896, TAX: 391.0, PRICE: 19700.0$)\n\n(CRIM: 0.23912, TAX: 391.0, PRICE: 21200.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.4213620071684588, "id": "", "name": "cube6_cluster0", "size": 5, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:13.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e11.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e88.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e62\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.00632, TAX: 296.0, PRICE: 24000.0$)\n\n(CRIM: 0.08829, TAX: 311.0, PRICE: 22900.0$)\n\n(CRIM: 1.05393, TAX: 307.0, PRICE: 23100.0$)\n\n(CRIM: 0.17505, TAX: 279.0, PRICE: 24700.0$)\n\n(CRIM: 0.1415, TAX: 233.0, PRICE: 25300.0$)\n\n(CRIM: 0.15936, TAX: 233.0, PRICE: 24700.0$)\n\n(CRIM: 0.0536, TAX: 243.0, PRICE: 25000.0$)\n\n(CRIM: 0.04981, TAX: 243.0, PRICE: 23400.0$)\n\n(CRIM: 0.02055, TAX: 313.0, PRICE: 24700.0$)\n\n(CRIM: 0.15445, TAX: 284.0, PRICE: 23300.0$)\n\n(CRIM: 0.1265, TAX: 284.0, PRICE: 25000.0$)\n\n(CRIM: 0.03584, TAX: 337.0, PRICE: 23500.0$)\n\n(CRIM: 0.08826, TAX: 305.0, PRICE: 24200.0$)\n\n(CRIM: 0.09164, TAX: 305.0, PRICE: 22800.0$)\n\n(CRIM: 0.19539, TAX: 305.0, PRICE: 23400.0$)\n\n(CRIM: 0.04462, TAX: 281.0, PRICE: 23900.0$)\n\n(CRIM: 0.03659, TAX: 281.0, PRICE: 24800.0$)\n\n(CRIM: 0.03551, TAX: 281.0, PRICE: 22900.0$)\n\n(CRIM: 0.05059, TAX: 247.0, PRICE: 23900.0$)\n\n(CRIM: 0.0566, TAX: 270.0, PRICE: 23600.0$)\n\n(CRIM: 0.04203, TAX: 270.0, PRICE: 22900.0$)\n\n(CRIM: 0.02875, TAX: 270.0, PRICE: 25000.0$)\n\n(CRIM: 0.13914, TAX: 296.0, PRICE: 23100.0$)\n\n(CRIM: 0.09178, TAX: 296.0, PRICE: 23600.0$)\n\n(CRIM: 0.07022, TAX: 296.0, PRICE: 23200.0$)\n\n(CRIM: 0.05425, TAX: 296.0, PRICE: 24600.0$)\n\n(CRIM: 0.03445, TAX: 348.0, PRICE: 24100.0$)\n\n(CRIM: 0.22969, TAX: 277.0, PRICE: 24400.0$)\n\n(CRIM: 0.13587, TAX: 277.0, PRICE: 24400.0$)\n\n(CRIM: 0.28955, TAX: 277.0, PRICE: 23700.0$)\n\n(CRIM: 0.19802, TAX: 277.0, PRICE: 25000.0$)\n\n(CRIM: 0.0456, TAX: 276.0, PRICE: 23300.0$)\n\n(CRIM: 0.11425, TAX: 276.0, PRICE: 23000.0$)\n\n(CRIM: 0.537, TAX: 307.0, PRICE: 24300.0$)\n\n(CRIM: 0.33045, TAX: 307.0, PRICE: 24000.0$)\n\n(CRIM: 0.52058, TAX: 307.0, PRICE: 25100.0$)\n\n(CRIM: 0.08244, TAX: 300.0, PRICE: 23700.0$)\n\n(CRIM: 0.09252, TAX: 300.0, PRICE: 23300.0$)\n\n(CRIM: 0.12757, TAX: 300.0, PRICE: 23700.0$)\n\n(CRIM: 0.33983, TAX: 330.0, PRICE: 24300.0$)\n\n(CRIM: 0.16439, TAX: 330.0, PRICE: 24500.0$)\n\n(CRIM: 0.19073, TAX: 330.0, PRICE: 26200.0$)\n\n(CRIM: 0.1403, TAX: 330.0, PRICE: 24400.0$)\n\n(CRIM: 0.21409, TAX: 330.0, PRICE: 24800.0$)\n\n(CRIM: 0.76162, TAX: 264.0, PRICE: 22800.0$)\n\n(CRIM: 0.16211, TAX: 223.0, PRICE: 25200.0$)\n\n(CRIM: 0.1146, TAX: 223.0, PRICE: 24400.0$)\n\n(CRIM: 0.03871, TAX: 293.0, PRICE: 23200.0$)\n\n(CRIM: 0.04297, TAX: 293.0, PRICE: 24800.0$)\n\n(CRIM: 0.08265, TAX: 289.0, PRICE: 23900.0$)\n\n(CRIM: 0.49298, TAX: 304.0, PRICE: 22800.0$)\n\n(CRIM: 0.3692, TAX: 304.0, PRICE: 23800.0$)\n\n(CRIM: 0.40202, TAX: 304.0, PRICE: 23100.0$)\n\n(CRIM: 0.1676, TAX: 287.0, PRICE: 23800.0$)\n\n(CRIM: 0.18159, TAX: 287.0, PRICE: 23100.0$)\n\n(CRIM: 0.34109, TAX: 287.0, PRICE: 25000.0$)\n\n(CRIM: 0.19186, TAX: 287.0, PRICE: 24600.0$)\n\n(CRIM: 0.30347, TAX: 287.0, PRICE: 23000.0$)\n\n(CRIM: 0.0187, TAX: 351.0, PRICE: 23100.0$)\n\n(CRIM: 0.01501, TAX: 280.0, PRICE: 24500.0$)\n\n(CRIM: 0.06211, TAX: 335.0, PRICE: 22900.0$)\n\n(CRIM: 0.06076, TAX: 273.0, PRICE: 23900.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.41361111111111115, "id": "", "name": "cube6_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:14.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e12.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e87.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e8\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 5.20177, TAX: 666.0, PRICE: 22700.0$)\n\n(CRIM: 4.54192, TAX: 666.0, PRICE: 25000.0$)\n\n(CRIM: 13.5222, TAX: 666.0, PRICE: 23100.0$)\n\n(CRIM: 5.29305, TAX: 666.0, PRICE: 23200.0$)\n\n(CRIM: 3.56868, TAX: 666.0, PRICE: 23200.0$)\n\n(CRIM: 5.82401, TAX: 666.0, PRICE: 23000.0$)\n\n(CRIM: 5.70818, TAX: 666.0, PRICE: 23700.0$)\n\n(CRIM: 5.73116, TAX: 666.0, PRICE: 25000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.4177777777777778, "id": "", "name": "cube6_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube6_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:17.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e14.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e85.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e14\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.07896, TAX: 398.0, PRICE: 24100.0$)\n\n(CRIM: 0.10084, TAX: 432.0, PRICE: 22800.0$)\n\n(CRIM: 0.59005, TAX: 437.0, PRICE: 23000.0$)\n\n(CRIM: 1.34284, TAX: 403.0, PRICE: 24300.0$)\n\n(CRIM: 1.42502, TAX: 403.0, PRICE: 23300.0$)\n\n(CRIM: 2.24236, TAX: 403.0, PRICE: 22700.0$)\n\n(CRIM: 2.924, TAX: 403.0, PRICE: 25000.0$)\n\n(CRIM: 1.80028, TAX: 403.0, PRICE: 23800.0$)\n\n(CRIM: 2.3004, TAX: 403.0, PRICE: 23800.0$)\n\n(CRIM: 0.04417, TAX: 358.0, PRICE: 24800.0$)\n\n(CRIM: 0.02543, TAX: 370.0, PRICE: 23900.0$)\n\n(CRIM: 0.0795, TAX: 411.0, PRICE: 24100.0$)\n\n(CRIM: 0.27957, TAX: 391.0, PRICE: 24500.0$)\n\n(CRIM: 0.17899, TAX: 391.0, PRICE: 23100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.5125490196078432, "id": "", "name": "cube7_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube7_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:31.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e23.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e76.5%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e17\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02985, TAX: 222.0, PRICE: 28700.0$)\n\n(CRIM: 0.12744, TAX: 233.0, PRICE: 26600.0$)\n\n(CRIM: 0.04113, TAX: 281.0, PRICE: 28000.0$)\n\n(CRIM: 0.05735, TAX: 247.0, PRICE: 26600.0$)\n\n(CRIM: 0.05302, TAX: 270.0, PRICE: 28700.0$)\n\n(CRIM: 0.12204, TAX: 276.0, PRICE: 28400.0$)\n\n(CRIM: 0.08308, TAX: 193.0, PRICE: 26400.0$)\n\n(CRIM: 0.01439, TAX: 265.0, PRICE: 29100.0$)\n\n(CRIM: 0.14052, TAX: 277.0, PRICE: 28100.0$)\n\n(CRIM: 0.07013, TAX: 276.0, PRICE: 28700.0$)\n\n(CRIM: 0.07978, TAX: 254.0, PRICE: 29100.0$)\n\n(CRIM: 0.03502, TAX: 245.0, PRICE: 28500.0$)\n\n(CRIM: 0.03615, TAX: 245.0, PRICE: 27900.0$)\n\n(CRIM: 0.12932, TAX: 289.0, PRICE: 28600.0$)\n\n(CRIM: 0.05372, TAX: 289.0, PRICE: 27100.0$)\n\n(CRIM: 0.05479, TAX: 222.0, PRICE: 28400.0$)\n\n(CRIM: 0.04932, TAX: 222.0, PRICE: 28200.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.502962962962963, "id": "", "name": "cube7_cluster1", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube7_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e3\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 4.55587, TAX: 666.0, PRICE: 27500.0$)\n\n(CRIM: 11.9511, TAX: 666.0, PRICE: 27900.0$)\n\n(CRIM: 14.4383, TAX: 666.0, PRICE: 27500.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.49393939393939396, "id": "", "name": "cube7_cluster2", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube7_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e63.6%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:57.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e36.4%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.14455, TAX: 311.0, PRICE: 27100.0$)\n\n(CRIM: 0.14866, TAX: 384.0, PRICE: 27500.0$)\n\n(CRIM: 0.11432, TAX: 384.0, PRICE: 26500.0$)\n\n(CRIM: 1.27346, TAX: 403.0, PRICE: 27000.0$)\n\n(CRIM: 0.35809, TAX: 307.0, PRICE: 26700.0$)\n\n(CRIM: 0.62356, TAX: 307.0, PRICE: 27500.0$)\n\n(CRIM: 0.44791, TAX: 307.0, PRICE: 29000.0$)\n\n(CRIM: 0.19073, TAX: 330.0, PRICE: 26200.0$)\n\n(CRIM: 0.05561, TAX: 358.0, PRICE: 29000.0$)\n\n(CRIM: 0.09266, TAX: 329.0, PRICE: 26400.0$)\n\n(CRIM: 0.02899, TAX: 335.0, PRICE: 26600.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.5634782608695652, "id": "", "name": "cube8_cluster0", "size": 4, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube8_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e95.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:5.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e4.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e23\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02985, TAX: 222.0, PRICE: 28700.0$)\n\n(CRIM: 0.02763, TAX: 252.0, PRICE: 30800.0$)\n\n(CRIM: 0.01432, TAX: 256.0, PRICE: 31600.0$)\n\n(CRIM: 0.05302, TAX: 270.0, PRICE: 28700.0$)\n\n(CRIM: 0.06664, TAX: 296.0, PRICE: 29400.0$)\n\n(CRIM: 0.06642, TAX: 296.0, PRICE: 29900.0$)\n\n(CRIM: 0.06047, TAX: 193.0, PRICE: 29600.0$)\n\n(CRIM: 0.02187, TAX: 265.0, PRICE: 31100.0$)\n\n(CRIM: 0.01439, TAX: 265.0, PRICE: 29100.0$)\n\n(CRIM: 0.07013, TAX: 276.0, PRICE: 28700.0$)\n\n(CRIM: 0.6147, TAX: 307.0, PRICE: 30100.0$)\n\n(CRIM: 0.41238, TAX: 307.0, PRICE: 31600.0$)\n\n(CRIM: 0.44178, TAX: 307.0, PRICE: 31500.0$)\n\n(CRIM: 0.46296, TAX: 307.0, PRICE: 31700.0$)\n\n(CRIM: 0.44791, TAX: 307.0, PRICE: 29000.0$)\n\n(CRIM: 0.51183, TAX: 307.0, PRICE: 31500.0$)\n\n(CRIM: 0.65665, TAX: 264.0, PRICE: 30100.0$)\n\n(CRIM: 0.82526, TAX: 264.0, PRICE: 31000.0$)\n\n(CRIM: 0.7857, TAX: 264.0, PRICE: 30700.0$)\n\n(CRIM: 0.09604, TAX: 254.0, PRICE: 32000.0$)\n\n(CRIM: 0.07978, TAX: 254.0, PRICE: 29100.0$)\n\n(CRIM: 0.00906, TAX: 285.0, PRICE: 32200.000000000004$)\n\n(CRIM: 0.01709, TAX: 187.0, PRICE: 30100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.5631746031746032, "id": "", "name": "cube8_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube8_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e7\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.07875, TAX: 398.0, PRICE: 32000.0$)\n\n(CRIM: 0.12579, TAX: 398.0, PRICE: 29800.0$)\n\n(CRIM: 0.06911, TAX: 398.0, PRICE: 30500.0$)\n\n(CRIM: 0.04666, TAX: 329.0, PRICE: 30300.0$)\n\n(CRIM: 0.08221, TAX: 330.0, PRICE: 29600.0$)\n\n(CRIM: 0.05561, TAX: 358.0, PRICE: 29000.0$)\n\n(CRIM: 0.03049, TAX: 370.0, PRICE: 31200.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.5511111111111111, "id": "", "name": "cube8_cluster2", "size": 1, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube8_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e1\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 4.64689, TAX: 666.0, PRICE: 29800.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6287407407407407, "id": "", "name": "cube9_cluster0", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube9_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:15.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e13.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e86.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e15\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02729, TAX: 242.0, PRICE: 34700.0$)\n\n(CRIM: 0.03237, TAX: 222.0, PRICE: 33400.0$)\n\n(CRIM: 0.01951, TAX: 216.0, PRICE: 33000.0$)\n\n(CRIM: 0.0686, TAX: 276.0, PRICE: 33200.0$)\n\n(CRIM: 0.10008, TAX: 193.0, PRICE: 32500.0$)\n\n(CRIM: 0.46296, TAX: 307.0, PRICE: 31700.0$)\n\n(CRIM: 0.54011, TAX: 264.0, PRICE: 33800.0$)\n\n(CRIM: 0.22188, TAX: 223.0, PRICE: 35200.0$)\n\n(CRIM: 0.05644, TAX: 254.0, PRICE: 32400.0$)\n\n(CRIM: 0.09604, TAX: 254.0, PRICE: 32000.0$)\n\n(CRIM: 0.10469, TAX: 254.0, PRICE: 33200.0$)\n\n(CRIM: 0.06127, TAX: 254.0, PRICE: 33100.0$)\n\n(CRIM: 0.21038, TAX: 216.0, PRICE: 35100.0$)\n\n(CRIM: 0.07503, TAX: 222.0, PRICE: 33400.0$)\n\n(CRIM: 0.01301, TAX: 284.0, PRICE: 32700.000000000004$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6372222222222222, "id": "", "name": "cube9_cluster1", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube9_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:33.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e75.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.07875, TAX: 398.0, PRICE: 32000.0$)\n\n(CRIM: 0.0837, TAX: 398.0, PRICE: 34900.0$)\n\n(CRIM: 0.0315, TAX: 402.0, PRICE: 34900.0$)\n\n(CRIM: 0.01778, TAX: 402.0, PRICE: 32900.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6359999999999999, "id": "", "name": "cube9_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube9_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.03359, TAX: 252.0, PRICE: 34900.0$)\n\n(CRIM: 0.04011, TAX: 329.0, PRICE: 33300.0$)\n\n(CRIM: 0.03768, TAX: 329.0, PRICE: 34600.0$)\n\n(CRIM: 0.00906, TAX: 285.0, PRICE: 32200.000000000004$)\n\n(CRIM: 0.1, TAX: 329.0, PRICE: 33100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6859259259259258, "id": "", "name": "cube10_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube10_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e66.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:50.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e33.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e3\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.03359, TAX: 252.0, PRICE: 34900.0$)\n\n(CRIM: 0.01311, TAX: 226.0, PRICE: 35400.0$)\n\n(CRIM: 0.07886, TAX: 245.0, PRICE: 37300.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6927777777777777, "id": "", "name": "cube10_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube10_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e75.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:33.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e12\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02729, TAX: 242.0, PRICE: 34700.0$)\n\n(CRIM: 0.06905, TAX: 222.0, PRICE: 36200.0$)\n\n(CRIM: 0.0578, TAX: 193.0, PRICE: 37200.0$)\n\n(CRIM: 0.06888, TAX: 193.0, PRICE: 36200.0$)\n\n(CRIM: 0.09103, TAX: 193.0, PRICE: 37900.0$)\n\n(CRIM: 0.38214, TAX: 307.0, PRICE: 37600.0$)\n\n(CRIM: 0.66351, TAX: 264.0, PRICE: 36000.0$)\n\n(CRIM: 0.55007, TAX: 264.0, PRICE: 36500.0$)\n\n(CRIM: 0.22188, TAX: 223.0, PRICE: 35200.0$)\n\n(CRIM: 0.21038, TAX: 216.0, PRICE: 35100.0$)\n\n(CRIM: 0.03705, TAX: 216.0, PRICE: 35400.0$)\n\n(CRIM: 0.05515, TAX: 222.0, PRICE: 36100.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.6844444444444444, "id": "", "name": "cube10_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube10_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e75.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:33.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e25.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.0837, TAX: 398.0, PRICE: 34900.0$)\n\n(CRIM: 0.09068, TAX: 398.0, PRICE: 37000.0$)\n\n(CRIM: 0.08664, TAX: 398.0, PRICE: 36400.0$)\n\n(CRIM: 0.0315, TAX: 402.0, PRICE: 34900.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.7522222222222221, "id": "", "name": "cube11_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube11_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e2\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.06588, TAX: 193.0, PRICE: 39800.0$)\n\n(CRIM: 0.09103, TAX: 193.0, PRICE: 37900.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8066666666666666, "id": "", "name": "cube11_cluster1", "size": 1, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube11_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e1\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 1.22358, TAX: 403.0, PRICE: 41300.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.7488888888888889, "id": "", "name": "cube11_cluster2", "size": 1, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube11_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e1\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.12083, TAX: 276.0, PRICE: 38700.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8493333333333333, "id": "", "name": "cube12_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube12_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.08187, TAX: 276.0, PRICE: 43800.0$)\n\n(CRIM: 0.57529, TAX: 307.0, PRICE: 41700.0$)\n\n(CRIM: 0.01538, TAX: 244.0, PRICE: 44000.0$)\n\n(CRIM: 0.53412, TAX: 264.0, PRICE: 43100.0$)\n\n(CRIM: 0.5405, TAX: 264.0, PRICE: 43500.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8066666666666666, "id": "", "name": "cube12_cluster1", "size": 1, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube12_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e1\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 1.22358, TAX: 403.0, PRICE: 41300.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8344444444444443, "id": "", "name": "cube12_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube12_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e2\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.02177, TAX: 348.0, PRICE: 42300.0$)\n\n(CRIM: 0.36894, TAX: 330.0, PRICE: 42800.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8666666666666667, "id": "", "name": "cube13_cluster0", "size": 1, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube13_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e1\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.01538, TAX: 244.0, PRICE: 44000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.8911111111111111, "id": "", "name": "cube13_cluster1", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube13_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e66.7%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:50.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e33.3%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e3\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.08187, TAX: 276.0, PRICE: 43800.0$)\n\n(CRIM: 0.31533, TAX: 307.0, PRICE: 44800.0$)\n\n(CRIM: 0.29819, TAX: 307.0, PRICE: 46700.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.9044444444444445, "id": "", "name": "cube13_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube13_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e50.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e50.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e2\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.03578, TAX: 216.0, PRICE: 45400.0$)\n\n(CRIM: 0.06129, TAX: 216.0, PRICE: 46000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 1.0, "id": "", "name": "cube14_cluster0", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube14_cluster0)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e5\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 4.89822, TAX: 666.0, PRICE: 50000.0$)\n\n(CRIM: 5.66998, TAX: 666.0, PRICE: 50000.0$)\n\n(CRIM: 6.53876, TAX: 666.0, PRICE: 50000.0$)\n\n(CRIM: 9.2323, TAX: 666.0, PRICE: 50000.0$)\n\n(CRIM: 8.26725, TAX: 666.0, PRICE: 50000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 0.9844444444444445, "id": "", "name": "cube14_cluster1", "size": 3, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube14_cluster1)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e11\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 0.05602, TAX: 193.0, PRICE: 50000.0$)\n\n(CRIM: 0.01381, TAX: 255.0, PRICE: 50000.0$)\n\n(CRIM: 0.0351, TAX: 224.0, PRICE: 48500.0$)\n\n(CRIM: 0.02009, TAX: 224.0, PRICE: 50000.0$)\n\n(CRIM: 0.52693, TAX: 307.0, PRICE: 50000.0$)\n\n(CRIM: 0.29819, TAX: 307.0, PRICE: 46700.0$)\n\n(CRIM: 0.33147, TAX: 307.0, PRICE: 48300.0$)\n\n(CRIM: 0.61154, TAX: 264.0, PRICE: 50000.0$)\n\n(CRIM: 0.52014, TAX: 264.0, PRICE: 48800.0$)\n\n(CRIM: 0.57834, TAX: 264.0, PRICE: 50000.0$)\n\n(CRIM: 0.01501, TAX: 198.0, PRICE: 50000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}, {"color": 1.0, "id": "", "name": "cube14_cluster2", "size": 2, "tooltip": "\u003ch2\u003eCluster Details \u003cspan style=\"font-size:0.7em\"\u003e(node id: cube14_cluster2)\u003c/span\u003e\u003c/h2\u003e\n\n\u003chr\u003e\u003cbr/\u003e\n\n\u003ch3\u003eMember Distribution\u003c/h3\u003e  \n\n\u003cdiv id=\"histogram\"\u003e\n\u003c!-- Render histogram --\u003e\n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(70, 18, 100)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(68, 51, 125)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(58, 80, 138)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(46, 107, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(36, 131, 141)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(33, 155, 136)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(51, 178, 121)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(94, 199, 96)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:1.0px; background:rgb(155, 215, 59)\"\u003e\n        \u003cdiv\u003e0.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\n    \u003cdiv class=\"bin\" style=\"height:100.0px; background:rgb(220, 226, 37)\"\u003e\n        \u003cdiv\u003e100.0%\u003c/div\u003e\n    \u003c/div\u003e     \n  \n\n\u003c/div\u003e\n\n\u003cbr\u003e\u003cbr\u003e\n\n\u003c!-- Projection Statistics --\u003e\n\n\n\n\u003c!-- Cluster Statistics --\u003e\n\n    \u003chr\u003e\u003cbr/\u003e\n\n    \u003c!-- \u003ch3\u003eCluster Statistics\u003c/h3\u003e --\u003e\n\n    \n\n    \n\n\n    \u003ch3\u003eSize\u003c/h3\u003e\n        \u003cp\u003e4\u003c/p\u003e\n\n\n\n\n\n\u003c!-- Membership information --\u003e\n\n\n\n\u003chr\u003e \u003cbr/\u003e\n\n\u003ch3\u003eMembers\u003c/h3\u003e\n\n(CRIM: 1.46336, TAX: 403.0, PRICE: 50000.0$)\n\n(CRIM: 1.83377, TAX: 403.0, PRICE: 50000.0$)\n\n(CRIM: 1.51902, TAX: 403.0, PRICE: 50000.0$)\n\n(CRIM: 2.01019, TAX: 403.0, PRICE: 50000.0$)\n\n\n\n\u003cbr\u003e\u003cbr\u003e\n\u003chr\u003e\u003cbr\u003e", "type": "circle"}]}' style="display:none"></div>
+  <div id="json_colorscale" data-colorscale='[[0.0, "rgb(68, 1, 84)"], [0.1, "rgb(72, 35, 116)"], [0.2, "rgb(64, 67, 135)"], [0.3, "rgb(52, 94, 141)"], [0.4, "rgb(41, 120, 142)"], [0.5, "rgb(32, 144, 140)"], [0.6, "rgb(34, 167, 132)"], [0.7, "rgb(68, 190, 112)"], [0.8, "rgb(121, 209, 81)"], [0.9, "rgb(189, 222, 38)"], [1.0, "rgb(253, 231, 36)"]]'
+  style="display:none"></div>
+
+  <div id="canvas">
+      <!-- Graph will go in here -->
+  </div>
+
+  <!-- Seperate canvas and panes so we can overlay elements -->
+  <div id="panes">
+    <img id="logo" src="https://i.imgur.com/bxux6WA.png">
+    
+<div id="toolbar">
+    <div id="tooltip_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="tooltip_tag">[+]</small></a> 
+        Cluster Details  
+        </h3>
+    </div>  
+    
+    <div id="meta_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="meta_tag">[+]</small></a> 
+        Mapper Summary 
+        </h3> 
+    </div>
+
+    <div id="help_control" class="tool_item">
+        <h3>
+        <a href="#"><small id="helptip_tag">[+]</small></a>
+        Help
+        </h3>
+    </div>
+
+</div>
+
+    <div id="header">
+      <noscript><b>Requires JavaScript (d3.js) for visualizations</b></noscript>
+      <h1> Boston house prices </h1>
+    </div>
+
+    <!-- Panes for each of the tips -->
+    <div id="tooltip">
+      <div id="tooltip_content" class="pane_content">
+        Hover over a node to see attributes about it.
+      </div>
+    </div>
+
+    <div id="helptip">
+        <div id="helptip_content" class="pane_content">
+            <!-- Help pane. 
+    TODO: Add more information here.  -->
+
+<ul>
+<li>Double click on a node to center graph at that node.</li>
+</ul>
+
+<table>
+    <tr>
+        <th>Key</th>
+        <th><small>Action</small></th>
+    </tr>
+
+    <tr>
+        <td>s</td>
+        <td><small>Nodes glow :D</small></td>
+    </tr>
+
+    <tr>
+        <td>c</td>
+        <td><small>remove glow</small></td>
+    </tr>
+
+    <tr>
+        <td>p</td>
+        <td><small>Print mode - white backgrounds</small></td>
+    </tr>
+
+    <tr>
+        <td>d</td>
+        <td><small>Display mode - black backgrounds</small></td>
+    </tr>
+
+    <tr>
+        <td>z</td>
+        <td><small>Turn off gravity</small></td>
+    </tr>
+
+    <tr>
+        <td>m</td>
+        <td><small>Spacious layout</small></td>
+    </tr>
+
+    <tr>
+        <td>e</td>
+        <td><small>Tight layout</small></td>
+    </tr>
+
+</table> 
+        </div>
+      </div>
+
+    <div id="meta">
+      <div id="meta_content" class="pane_content">
+        <h2>Mapper Summary</h2>
+
+<hr><br>
+
+
+    
+        <h3>projection </h3> <p> [13]</p>
+    
+        <h3>n_cubes </h3> <p> 15</p>
+    
+        <h3>perc_overlap </h3> <p> 0.2</p>
+    
+        <h3>clusterer </h3> <p> KMeans(algorithm='auto', copy_x=True, init='k-means++', max_iter=300,<br>       n_clusters=3, n_init=10, n_jobs=None, precompute_distances='auto',<br>       random_state=None, tol=0.0001, verbose=0)</p>
+    
+        <h3>scaler </h3> <p> MinMaxScaler(copy=True, feature_range=(0, 1))</p>
+    
+
+
+<h3>Nodes</h3><p> 45 </p>
+
+<h3>Edges</h3><p> 35 </p>
+
+<h3>Total Samples</h3><p> 617</p>
+
+<h3>Unique Samples</h3><p> 506</p>
+
+<hr><br/>
+
+<h3>Node Distribution</h3>  
+
+<div id="histogram">
+<!-- Render histogram -->
+
+
+    <div class="bin" style="height:83.0px; background:rgb(70, 18, 100)">
+        <div>11.1%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:67.0px; background:rgb(68, 51, 125)">
+        <div>8.9%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:50.0px; background:rgb(58, 80, 138)">
+        <div>6.7%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:100.0px; background:rgb(46, 107, 141)">
+        <div>13.3%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:67.0px; background:rgb(36, 131, 141)">
+        <div>8.9%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:83.0px; background:rgb(33, 155, 136)">
+        <div>11.1%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:100.0px; background:rgb(51, 178, 121)">
+        <div>13.3%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:33.0px; background:rgb(94, 199, 96)">
+        <div>4.4%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:100.0px; background:rgb(155, 215, 59)">
+        <div>13.3%</div>
+    </div>     
+  
+
+
+    <div class="bin" style="height:67.0px; background:rgb(220, 226, 37)">
+        <div>8.9%</div>
+    </div>     
+  
+
+</div>
+
+<br><br>
+
+
+<hr><br> 
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+
+  <script>// Height and width settings
+var canvas_height = window.innerHeight - 5;
+document.getElementById("canvas").style.height = canvas_height + "px";
+var width = document.getElementById("canvas").offsetWidth;
+var height = document.getElementById("canvas").offsetHeight;
+var w = width;
+var h = height;
+var padding = 40;
+
+var focus_node = null, highlight_node = null;
+var text_center = false;
+var outline = false;
+
+// Size for zooming
+var size = d3.scale.pow().exponent(1)
+           .domain([1,100])
+           .range([8,24]);
+
+// Variety of variable inits
+var highlight_color = "blue";
+var highlight_trans = 0.1;
+var default_node_color = "#ccc";
+var default_node_color = "rgba(160,160,160, 0.5)";
+var default_link_color = "rgba(160,160,160, 0.5)";
+var nominal_base_node_size = 8;
+var nominal_text_size = 15;
+var max_text_size = 24;
+var nominal_stroke = 1.0;
+var max_stroke = 4.5;
+var max_base_node_size = 36;
+var min_zoom = 0.1;
+var max_zoom = 7;
+var zoom = d3.behavior.zoom().scaleExtent([min_zoom,max_zoom]);
+
+
+var tocolor = "fill";
+var towhite = "stroke";
+if (outline) {
+  tocolor = "stroke";
+  towhite = "fill";
+}
+
+
+// We draw the graph in SVG
+var svg = d3.select("#canvas").append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+svg.style("cursor","move");
+var g = svg.append("g");
+
+/**
+ * Side panes
+ * 
+ * 
+ * 
+ * 
+ */
+
+// Show/Hide Functionality
+var toggle_pane = function(content, content_id, tag){
+  var active = content.active ? false : true;
+
+  if (active){
+    content_id.style("display", "unset");
+    tag.textContent = "[-]";
+  } else{
+    content_id.style("display", "none");
+    tag.textContent = "[+]";
+  }
+
+  // TODO: This is probably not the best way to find the correct height.
+  var h = canvas_height - content.offsetTop - padding;
+  content_id.style("height", h + "px")
+
+  content.active = active;
+}
+
+d3.select("#tooltip_control").on("click", function() {
+  toggle_pane(tooltip_content, 
+              d3.select("#tooltip_content"), 
+              d3.select("#tooltip_tag")[0][0]);
+
+});
+
+d3.select("#meta_control").on("click", function() {
+  toggle_pane(meta_content, 
+              d3.select("#meta_content"),
+              d3.select("#meta_tag")[0][0])
+
+});
+
+d3.select("#help_control").on("click", function() {
+  toggle_pane(helptip_content, 
+              d3.select("#helptip_content"),
+              d3.select("#helptip_tag")[0][0])
+});
+
+
+
+/**
+ * 
+ * Set up color scale
+ * 
+ * 
+ */
+
+var colorscale = JSON.parse(document.getElementById("json_colorscale").dataset.colorscale);
+var domain = colorscale.map((x)=>x[0])
+var palette = colorscale.map((x)=>x[1])
+
+var color = d3.scale.linear()
+  .domain(domain)
+  .range(palette);
+
+
+/**
+ *  Graph setup 
+ * 
+ * 
+ */
+
+var graph = JSON.parse(document.getElementById("json_graph").dataset.graph);
+
+              
+// Force settings
+var force = d3.layout.force()
+            .linkDistance(5)
+            .gravity(0.2)
+            .charge(-1200)
+            .size([w,h]);
+
+force
+  .nodes(graph.nodes)
+  .links(graph.links)
+  .start();
+
+var link = g.selectAll(".link")
+            .data(graph.links)
+            .enter().append("line")
+              .attr("class", "link")
+              .style("stroke-width", function(d) { return d.w * nominal_stroke; })
+              .style("stroke-width", function(d) { return d.w * nominal_stroke; })
+
+
+var node = g.selectAll(".node")
+            .data(graph.nodes)
+            .enter().append("g")
+              .attr("class", "node")
+              .call(force.drag);
+
+// Double clicking on a node will center on it.
+node.on("dblclick.zoom", function(d) { d3.event.stopPropagation();
+  var dcx = (window.innerWidth/2-d.x*zoom.scale());
+  var dcy = (window.innerHeight/2-d.y*zoom.scale());
+  zoom.translate([dcx,dcy]);
+  g.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+});
+
+
+
+
+// Drop-shadow Filter
+var svg = d3.select("svg");
+var defs = svg.append("defs");
+var dropShadowFilter = defs.append('svg:filter')
+  .attr('id', 'drop-shadow')
+  .attr('filterUnits', "userSpaceOnUse")
+  .attr('width', '250%')
+  .attr('height', '250%');
+dropShadowFilter.append('svg:feGaussianBlur')
+  .attr('in', 'SourceGraphic')
+  .attr('stdDeviation', 12)
+  .attr('result', 'blur-out');
+dropShadowFilter.append('svg:feColorMatrix')
+  .attr('in', 'blur-out')
+  .attr('type', 'hueRotate')
+  .attr('values', 0)
+  .attr('result', 'color-out');
+dropShadowFilter.append('svg:feOffset')
+  .attr('in', 'color-out')
+  .attr('dx', 0)
+  .attr('dy', 0)
+  .attr('result', 'the-shadow');
+dropShadowFilter.append('svg:feComponentTransfer')
+  .attr('type', 'linear')
+  .attr('slope', 0.2)
+  .attr('result', 'shadow-opacity');
+dropShadowFilter.append('svg:feBlend')
+  .attr('in', 'SourceGraphic')
+  .attr('in2', 'the-shadow')
+  .attr('mode', 'normal');
+
+// Draw circles
+var circle = node.append("path")
+  .attr("d", d3.svg.symbol()
+    .size(function(d) { return d.size * 50; })
+    .type(function(d) { return d.type; }))
+  .attr("class", "circle")
+  .style(tocolor, function(d) {
+    console.log("Node color:", d.color);
+    console.log("becomes color ", color(d.color));
+    return color(d.color);
+  });
+//.style("filter", "url(#drop-shadow)");
+
+
+// Format all text 
+var text = g.selectAll(".text")
+  .data(graph.nodes)
+  .enter().append("text")
+    .attr("dy", ".35em")
+    .style("font-family", "Roboto")
+    .style("font-weight", "400")
+    .style("color", "#2C3E50")
+    .style("font-size", nominal_text_size + "px");
+
+
+
+if (text_center) {
+  text.text(function(d) { return d.id; })
+    .style("text-anchor", "middle");
+} else {
+  text.attr("dx", function(d) {return (size(d.size)||nominal_base_node_size);})
+    .text(function(d) { return '\u2002'+d.id; });
+}
+
+
+/**
+ * Mouse Interactivity
+ * 
+ * 
+ * 
+ * 
+ * 
+ */
+
+node.on("mouseover", function(d) {
+  // Change node details
+  set_highlight(d);
+  d3.select("#tooltip_content").html(d.tooltip + "<br/>");
+}).on("mousedown", function(d) {
+  // TODO: This seems to only stop the one particular node from moving?
+
+  d3.event.stopPropagation();
+  focus_node = d;
+  if (highlight_node === null) {
+    set_highlight(d)
+  }
+}).on("mouseout", function(d) {
+  exit_highlight();
+});
+
+d3.select(window).on("mouseup", function() {
+  if (focus_node!==null){
+    focus_node = null;
+  }
+  if (highlight_node === null) {
+    exit_highlight();
+  }
+});
+
+// Node highlighting logic
+function exit_highlight(){
+  highlight_node = null;
+  if (focus_node===null){
+    svg.style("cursor","move");
+  }
+}
+
+function set_highlight(d){
+  svg.style("cursor","pointer");
+  if (focus_node!==null) d = focus_node;
+}
+
+
+// Zoom logic
+zoom.on("zoom", function() {
+  var stroke = nominal_stroke;
+  var base_radius = nominal_base_node_size;
+  if (nominal_base_node_size*zoom.scale()>max_base_node_size) {
+    base_radius = max_base_node_size/zoom.scale();}
+  circle.attr("d", d3.svg.symbol()
+    .size(function(d) { return d.size * 50; })
+    .type(function(d) { return d.type; }))
+  if (!text_center) text.attr("dx", function(d) {
+    return (size(d.size)*base_radius/nominal_base_node_size||base_radius); });
+
+  var text_size = nominal_text_size;
+  if (nominal_text_size*zoom.scale()>max_text_size) {
+    text_size = max_text_size/zoom.scale(); }
+  text.style("font-size",text_size + "px");
+
+  g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+});
+
+svg.call(zoom);
+resize();
+d3.select(window).on("resize", resize);
+
+// Animation per tick
+force.on("tick", function() {
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  text.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+  link.attr("x1", function(d) { return d.source.x; })
+    .attr("y1", function(d) { return d.source.y; })
+    .attr("x2", function(d) { return d.target.x; })
+    .attr("y2", function(d) { return d.target.y; });
+  node.attr("cx", function(d) { return d.x; })
+    .attr("cy", function(d) { return d.y; });
+});
+
+
+
+// Resizing window and redraws
+function resize() {
+  var width = window.innerWidth, height = window.innerHeight;
+  var width = document.getElementById("canvas").offsetWidth;
+  var height = document.getElementById("canvas").offsetHeight;
+  svg.attr("width", width).attr("height", height);
+
+  force.size([force.size()[0]+(width-w)/zoom.scale(),
+              force.size()[1]+(height-h)/zoom.scale()]).resume();
+  w = width;
+  h = height;
+}
+
+
+function isNumber(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
+// Key press events
+window.addEventListener("keydown", function (event) {
+if (event.defaultPrevented) {
+  return; // Do nothing if the event was already processed
+}
+
+
+switch (event.key) {
+  case "f":
+    console.log("Freeze graph")
+    break;
+  case "s":
+    // Do something for "s" key press.
+    node.style("filter", "url(#drop-shadow)");
+    break;
+  case "c":
+    // Do something for "s" key press.
+    node.style("filter", null);
+    break;
+  case "p":
+    // Turn to print mode, white backgrounds
+    d3.select("body").attr('id', null).attr('id', "print")
+    break;
+  case "d":
+    // Do something for "d" key press.
+    d3.select("body").attr('id', null).attr('id', "display")
+    break;
+  case "z":
+    force.gravity(0.0)
+         .charge(0.0);
+    resize();
+    break
+  case "m":
+    force.gravity(0.07)
+         .charge(-1);
+    resize();
+    break
+  case "e":
+    force.gravity(0.4)
+         .charge(-600);
+
+    resize();
+    break
+  default:
+    return; // Quit when this doesn't handle the key event.
+}
+// Cancel the default action to avoid it being handled twice
+event.preventDefault();
+}, true);
+</script>
+</body>
+
+</html>
